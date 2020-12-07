@@ -19,7 +19,7 @@
 
     <div class="row">
       <div class="col-12 d-flex justify-content-center my-4">
-        <button class="btn btn-danger btn-lg" @click="roll">Roll</button>
+        <button class="btn btn-danger btn-lg" @click="roll" :disabled="rolling">Roll</button>
       </div>
     </div>
 
@@ -43,7 +43,8 @@ export default {
         { title: '' },
       ],
       selectedVoice: '',
-      currentSong: ''
+      currentSong: '',
+      rolling: false
     }
   },
   computed: {
@@ -53,6 +54,8 @@ export default {
   },
   methods: {
     roll() {
+      this.rolling = true
+
       const randomNumber = Math.ceil(Math.random() * this.songs.length - 1)
       this.currentSong = this.songs[randomNumber]
 
@@ -91,6 +94,10 @@ export default {
                   tts4.voice = this.selectedVoice
                   tts4.text = `Het nummer dat we gaan draaien is... ${this.currentSong.title}`
                   window.speechSynthesis.speak(tts4)
+
+                  tts4.onend = () => {
+                    this.rolling = false
+                  }
                 }, 3000)
               }
             }, 3000)
