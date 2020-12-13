@@ -1,9 +1,9 @@
 <template>
   <div class="container my-5">
     <select v-model="selectedVoice" class="form-control form-control-lg">
-      <option value="" disabled selected>Selecteer een stem...</option>
-      <template v-for="voice in availableVoices">
-        <option :value="voice">{{ voice.name }}</option>
+      <option value="" disabled>Selecteer een stem...</option>
+      <template v-for="(voice, index) in availableVoices">
+        <option :value="index">{{ voice.name }} ({{ voice.lang }})</option>
       </template>
     </select>
 
@@ -42,14 +42,19 @@ export default {
         { title: '' },
         { title: '' },
       ],
+      availableVoices: [],
       selectedVoice: '',
       currentSong: '',
-      rolling: false
+      rolling: false,
+      synth: window.speechSynthesis
     }
   },
-  computed: {
-    availableVoices() {
-      return window.speechSynthesis.getVoices().filter(voice => voice.lang == 'nl-NL')
+  computed: {},
+  mounted() {
+    this.availableVoices = this.synth.getVoices()
+
+    this.synth.onvoiceschanged = () => {
+      this.availableVoices = this.synth.getVoices()
     }
   },
   methods: {
@@ -61,9 +66,11 @@ export default {
 
       const rouletteSpin = new Audio('roulette_spin.mp3');
 
+      const voice = window.speechSynthesis.getVoices()[this.selectedVoice]
+
       const tts = new SpeechSynthesisUtterance();
-      tts.lang = 'nl-NL'
-      tts.voice = this.selectedVoice
+      tts.lang = voice.lang
+      tts.voice = voice
       tts.text = `Ik ben de roulettecomputer. Bliep, bloep, blop. Daar gaan we weer... De keuze is tussen ${this.songs[0].title}, ${this.songs[1].title}, ${this.songs[2].title}, ${this.songs[3].title} en ${this.songs[4].title}. We gaan nu aan het rad draaien...`
       window.speechSynthesis.speak(tts)
 
@@ -72,8 +79,9 @@ export default {
 
         setTimeout(() => {
           const tts2 = new SpeechSynthesisUtterance();
-          tts2.lang = 'nl-NL'
-          tts2.voice = this.selectedVoice
+          const voice = window.speechSynthesis.getVoices()[this.selectedVoice]
+          tts2.lang = voice.lang
+          tts2.voice = voice
           tts2.pitch = 1.5
           tts2.text = `Het wordt heel spannend...`
           window.speechSynthesis.speak(tts2)
@@ -81,8 +89,9 @@ export default {
           tts2.onend = () => {
             setTimeout(() => {
               const tts3 = new SpeechSynthesisUtterance();
-              tts3.lang = 'nl-NL'
-              tts3.voice = this.selectedVoice
+              const voice = window.speechSynthesis.getVoices()[this.selectedVoice]
+              tts3.lang = voice.lang
+              tts3.voice = voice
               tts3.pitch = 2
               tts3.text = `Ik hou het niet meer`
               window.speechSynthesis.speak(tts3)
@@ -90,8 +99,9 @@ export default {
               tts3.onend = () => {
                 setTimeout(() => {
                   const tts4 = new SpeechSynthesisUtterance();
-                  tts4.lang = 'nl-NL'
-                  tts4.voice = this.selectedVoice
+                  const voice = window.speechSynthesis.getVoices()[this.selectedVoice]
+                  tts4.lang = voice.lang
+                  tts4.voice = voice
                   tts4.text = `Het nummer dat we gaan draaien is... ${this.currentSong.title}`
                   window.speechSynthesis.speak(tts4)
 
